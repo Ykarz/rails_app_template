@@ -21,7 +21,7 @@ Dockerを使ったRuby on Railsの開発環境を構築するためのテンプ�
 ```
 $ docker compose build
 $ docker compose run --rm web gem install rails -v 7.2.2
-$ docker compose run --rm web rails new . -d mysql -j esbuild --css=tailwind --skip-kamal --skip-solid
+$ docker compose run --rm web rails new . -d postgresql -j esbuild --css=tailwind --skip-kamal --skip-solid
 ```
 
 ```rails new```で作成されたファイルのうち、```config/database.yml```を以下のように編集する。
