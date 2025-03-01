@@ -7,7 +7,7 @@ services: # 各コンテナの定義開始
       POSTGRES_USER: postgres # データベースのユーザー設定
       POSTGRES_PASSWORD: password # データベースのパスワード設定
     volumes: # データの永続化設定
-      - postgresql_data:/var/lib/postgresql # DBデータを永続化
+      - postgresql_data:/var/lib/postgresql/data # DBデータを永続化
     ports: # ポート設定
       - 5432:5432
     healthcheck: # コンテナの健康チェック設定
