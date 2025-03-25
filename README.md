@@ -5,7 +5,8 @@ Dockerを使ったRuby on Railsの開発環境を構築するためのテンプ�
 - Rails：7.2.2
 - Node.js：20系
 - JavaScriptバンドラー：ESBuild
-- CSSフレームワーク：TailwindCSS
+- CSSフレームワーク：Tailwind CSS 3系
+- UIコンポート：daisyUI
 - データベース：PostgreSQL
 
 ## 環境構築の手順
@@ -17,11 +18,12 @@ Dockerを使ったRuby on Railsの開発環境を構築するためのテンプ�
 作成したリポジトリを```git clone```して、ローカルに持ってくる。
 
 ローカルのターミナルにて、以下のコマンドを1行ずつ実行する。
+なお、Tailwind CSSのバージョンは3系で固定したいので、```--css=tailwind```オプションは使用しない。
 
 ```
 $ docker compose build
 $ docker compose run --rm web gem install rails -v 7.2.2
-$ docker compose run --rm web rails new . -d postgresql -j esbuild --css=tailwind --skip-kamal --skip-solid
+$ docker compose run --rm web rails new . -d postgresql -j esbuild --skip-kamal --skip-solid
 ```
 
 ```rails new```で作成されたファイルのうち、```config/database.yml```を以下のように編集する。
@@ -47,10 +49,62 @@ web: env RUBY_DEBUG_OPEN=true bin/rails server -b 0.0.0.0 -p 3000
 # JavaScriptのビルド設定
 js: yarn build --watch
 # CSSのビルド設定
-css: yarn build:css --watch
+css: bin/rails tailwindcss:watch
+```
+
+ここからTailwindをgem形式でインストールしていく。```Gemfile```に以下を記述する。
+
+```
+gem "tailwindcss-rails"
+gem "tailwindcss-ruby", "3.4.17"  # "3.4.17"の部分がTailwindのバージョン
+```
+
+以下のコマンドを実行して、```Gemfile```に記述されたgemをインストールし、その後、RailsアプリにTailwindを反映させる。
+
+```
+$ docker compose run --rm web bundle install
+$ docker compose run --rm web bundle exec rails tailwindcss:install
+```
+
+daisyUIをインストールする。以下のコマンドを実行する。
+
+```
+$ docker compose run --rm web yarn add -D daisyui@4
+$ docker compose run --rm web yarn add postcss  # 上記のdaisyUIのインストールコマンドだけではダメみたい
+```
+
+Tailwindの設定ファイルである```config/tailwind.config.js```に、プラグインとしてdaisyUIを記述する。
+
+```
+const defaultTheme = require('tailwindcss/defaultTheme')
+
+module.exports = {
+  content: [
+    './public/*.html',
+    './app/helpers/**/*.rb',
+    './app/javascript/**/*.js',
+    './app/views/**/*.{erb,haml,html,slim}'
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+      },
+    },
+  },
+  plugins: [
+    // 以下の部分がdaisyUIに関する記述
+    require('daisyui'),
+    // require('@tailwindcss/forms'),
+    // require('@tailwindcss/typography'),
+    // require('@tailwindcss/container-queries'),
+  ]
+}
+
 ```
 
 以下の```Docker compose```コマンドを実行して、コンテナを起動する。
+一応、ログを確認して、CSSのビルド等でエラーを吐いてないか確認しておくこと。
 
 ```
 $ docker compose up
@@ -59,11 +113,3 @@ $ docker compose up
 コンテナの起動を確認したら、以下のURLにアクセスして、Railsの初期画面が表示されるか確認する。
 
 http://localhost:3000/
-
-## ```tailwindcss: not found```というエラーが出てTailwind CSSが反映されない場合
-
-バージョン4系を利用したい場合、以下のQiita記事を参考のこと。
-https://qiita.com/topi_log/items/b8cc6afaa6e12599ffbb
-
-バージョン3系を利用したい場合、以下の記事を参考のこと。
-https://qiita.com/YamzknA/items/53478370761f716b068f
