@@ -63,7 +63,7 @@ gem "tailwindcss-ruby", "3.4.17"  # "3.4.17"の部分がTailwindのバージョ�
 
 ```
 $ docker compose run --rm web bundle install
-$ docker compose run --rm web bundle exec rails tailwindcss:install
+$ docker compose run --rm web bin/rails tailwindcss:install
 ```
 
 daisyUIをインストールする。以下のコマンドを実行する。
