@@ -6,7 +6,7 @@ Dockerを使ったRuby on Railsの開発環境を構築するためのテンプ�
 - Node.js：20系
 - JavaScriptバンドラー：ESBuild
 - CSSフレームワーク：Tailwind CSS 3系
-- UIコンポート：daisyUI
+- UIコンポーネント：daisyUI
 - データベース：PostgreSQL
 
 ## 環境構築の手順
